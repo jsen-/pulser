@@ -1,5 +1,5 @@
+use super::Wrapper;
 use std::marker::PhantomData;
-use super::{IntoOwned, Wrapper};
 
 enum WrapState {
     Begin,
@@ -7,22 +7,20 @@ enum WrapState {
     End,
 }
 
-pub struct Wrapped<I, W>
+pub struct Wrapped<W, I>
 where
     W: Wrapper,
-    I: Iterator,
-    I::Item: IntoOwned<u8>,
+    I: Iterator<Item = u8>,
 {
     it: I,
     state: WrapState,
     p: PhantomData<W>,
 }
 
-impl<I, W> Iterator for Wrapped<I, W>
+impl<W, I> Iterator for Wrapped<W, I>
 where
     W: Wrapper,
-    I: Iterator,
-    I::Item: IntoOwned<u8>,
+    I: Iterator<Item = u8>,
 {
     type Item = u8;
     fn next(&mut self) -> Option<Self::Item> {
@@ -32,7 +30,7 @@ where
                 self.state = Middle;
                 Some(W::START)
             }
-            Middle => self.it.next().map(|x| x.into_owned()).or_else(|| {
+            Middle => self.it.next().or_else(|| {
                 self.state = End;
                 Some(W::END)
             }),
@@ -41,11 +39,10 @@ where
     }
 }
 
-pub fn wrap<W, I>(_w: W, it: I) -> Wrapped<I::IntoIter, W>
+pub fn wrap<W, I>(_w: W, it: I) -> Wrapped<W, I::IntoIter>
 where
-    I: IntoIterator,
+    I: IntoIterator<Item = u8>,
     I::IntoIter: Iterator<Item = I::Item>,
-    I::Item: IntoOwned<u8>,
     W: Wrapper,
 {
     Wrapped {
