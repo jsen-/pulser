@@ -5,3 +5,4 @@ authors = ["jsen- <max.enhanced@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+ryu = "0.2.8"
