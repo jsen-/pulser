@@ -1,4 +1,4 @@
-use super::{delim, wrap, Colon, Comma, CurlyBraces, Delimited, Quotes, Wrapped};
+use super::{delim, wrap, Colon, Comma, CurlyBraces, Delimited, Quotes, Wrapped, IteratorIterator};
 use std::str::Bytes;
 
 pub struct NilProp;
@@ -74,6 +74,23 @@ where
     fn into_iter(self) -> Self::IntoIter {
         wrap(CurlyBraces, self.0.into_iter())
     }
+}
+
+pub fn dynamic_object<T, K, V>(it: T) -> JsonObject<impl Iterator<Item = u8>>
+where
+    K: IntoIterator<Item = u8>,
+    V: IntoIterator<Item = u8>,
+    T: IntoIterator<Item = (K, V)>,
+{
+
+    // let inner_it: T::Item = it.into_iter().next().unwrap();
+    // let (key, value) = inner_it.into_iter().next().unwrap();
+    
+    let it = it.into_iter().map(|(key, value)| {
+        delim(wrap(Quotes, key.into_iter()), Colon, value.into_iter())
+    });
+
+    JsonObject(IteratorIterator::new(Comma, it))
 }
 
 pub fn object() -> JsonObject<NilProp> {

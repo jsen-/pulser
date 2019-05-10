@@ -2,7 +2,7 @@ use super::{Wrapped, Quotes, wrap};
 
 pub struct StringIterator(String, usize);
 impl StringIterator {
-    fn new(str: String) -> Self {
+    pub fn new(str: String) -> Self {
         Self(str, 0)
     }
 }

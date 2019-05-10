@@ -1,4 +1,4 @@
-use super::{delim, wrap, Comma, Delimited, SquareBrackets, Wrapped};
+use super::{delim, wrap, Comma, Delimited, SquareBrackets, Wrapped, IteratorIterator};
 
 pub struct NilItem;
 pub struct Item<V: IntoIterator<Item = u8>, T> {
@@ -6,14 +6,14 @@ pub struct Item<V: IntoIterator<Item = u8>, T> {
     tail: T,
 }
 
-pub trait Prop: Sized {
-    fn push<V: IntoIterator<Item = u8>>(self, name: &'static str, value: V) -> Item<V, Self> {
+pub trait Itm: Sized {
+    fn push<V: IntoIterator<Item = u8>>(self, value: V) -> Item<V, Self> {
         Item { value, tail: self }
     }
 }
 
-impl Prop for NilItem {}
-impl<V: IntoIterator<Item = u8>, T> Prop for Item<V, T> {}
+impl Itm for NilItem {}
+impl<V: IntoIterator<Item = u8>, T> Itm for Item<V, T> {}
 
 impl<V, T, U> IntoIterator for Item<V, Item<T, U>>
 where
@@ -54,67 +54,23 @@ where
     }
 }
 
-pub struct IteratorIterator<T>
-where
-    T: Iterator,
-    T::Item: IntoIterator<Item = u8>,
-{
-    current: Option<<T::Item as IntoIterator>::IntoIter>,
-    it: T,
-    delim: bool,
-}
-
-impl<T> Iterator for IteratorIterator<T>
-where
-    T: Iterator,
-    T::Item: IntoIterator<Item = u8>,
-{
-    type Item = u8;
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.delim {
-            self.delim = false;
-            return Some(b',');
-        }
-        self.current.take().and_then(|mut current| {
-            current
-                .next()
-                .map(|next| {
-                    self.current = Some(current);
-                    next
-                })
-                .or_else(|| {
-                    self.current = self.it.next().map(|next| {
-                        self.delim = true;
-                        next.into_iter()
-                    });
-                    self.next()
-                })
-        })
-    }
-}
-
 pub fn array() -> JsonArray<NilItem> {
     JsonArray(NilItem)
 }
 
-pub fn from_iter<T>(mut it: T) -> JsonArray<IteratorIterator<T>>
+pub fn dynamic_array<T>(it: T) -> JsonArray<IteratorIterator<T::IntoIter, Comma>>
 where
-    T: Iterator,
+    T: IntoIterator,
     T::Item: IntoIterator<Item = u8>,
 {
-    JsonArray(IteratorIterator {
-        current: it.next().map(|v| v.into_iter()),
-        it: it,
-        delim: false,
-    })
+    JsonArray(IteratorIterator::new(Comma, it))
 }
 
-impl<P: Prop> JsonArray<P> {
-    pub fn prop<V: IntoIterator<Item = u8>>(
+impl<P: Itm> JsonArray<P> {
+    pub fn item<V: IntoIterator<Item = u8>>(
         self,
-        name: &'static str,
         value: V,
     ) -> JsonArray<Item<V, P>> {
-        Self(self.0.push(name, value))
+        Self(self.0.push(value))
     }
 }
