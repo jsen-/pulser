@@ -1,4 +1,4 @@
-use super::{delim, wrap, Comma, Delimited, SquareBrackets, Wrapped, IteratorIterator};
+use super::{delim, wrap, Comma, Delimited, IteratorIterator, SquareBrackets, Wrapped};
 
 pub struct NilItem;
 pub struct Item<V: IntoIterator<Item = u8>, T> {
@@ -67,10 +67,7 @@ where
 }
 
 impl<P: Itm> JsonArray<P> {
-    pub fn item<V: IntoIterator<Item = u8>>(
-        self,
-        value: V,
-    ) -> JsonArray<Item<V, P>> {
+    pub fn item<V: IntoIterator<Item = u8>>(self, value: V) -> JsonArray<Item<V, P>> {
         Self(self.0.push(value))
     }
 }

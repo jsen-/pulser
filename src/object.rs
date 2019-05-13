@@ -1,4 +1,4 @@
-use super::{delim, wrap, Colon, Comma, CurlyBraces, Delimited, Quotes, Wrapped, IteratorIterator};
+use super::{delim, wrap, Colon, Comma, CurlyBraces, Delimited, IteratorIterator, Quotes, Wrapped};
 use std::str::Bytes;
 
 pub struct NilProp;
@@ -82,13 +82,12 @@ where
     V: IntoIterator<Item = u8>,
     T: IntoIterator<Item = (K, V)>,
 {
-
     // let inner_it: T::Item = it.into_iter().next().unwrap();
     // let (key, value) = inner_it.into_iter().next().unwrap();
-    
-    let it = it.into_iter().map(|(key, value)| {
-        delim(wrap(Quotes, key.into_iter()), Colon, value.into_iter())
-    });
+
+    let it = it
+        .into_iter()
+        .map(|(key, value)| delim(wrap(Quotes, key.into_iter()), Colon, value.into_iter()));
 
     JsonObject(IteratorIterator::new(Comma, it))
 }

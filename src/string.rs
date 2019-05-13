@@ -1,4 +1,4 @@
-use super::{Wrapped, Quotes, wrap};
+use super::{wrap, Quotes, Wrapped};
 
 pub struct StringIterator(String, usize);
 impl StringIterator {

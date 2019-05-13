@@ -6,3 +6,14 @@ edition = "2018"
 
 [dependencies]
 ryu = "0.2.8"
+
+[dependencies.serde_json]
+version = "1.0.39"
+optional = true
+
+[dependencies.serde]
+version = "1.0.91"
+optional = true
+
+[features]
+with_serde = ["serde", "serde_json"]

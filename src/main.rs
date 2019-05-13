@@ -1,4 +1,4 @@
-use pulser::{ReadAdapter, dynamic_array, Digits, string, object, dynamic_object};
+use pulser::{dynamic_array, dynamic_object, object, string, Digits, ReadAdapter};
 
 struct DbRow {
     id: isize,
@@ -38,7 +38,6 @@ fn log<T: IntoIterator<Item = u8>>(t: T) {
     println!();
 }
 
-
 fn main() {
     log(std::f32::NAN.digits());
     log((-14987_isize).digits());
@@ -62,5 +61,4 @@ fn main() {
     let props = vec![("a".bytes(), 1u8.digits())].into_iter();
 
     log(dynamic_object(props));
-
 }

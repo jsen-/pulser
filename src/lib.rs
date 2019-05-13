@@ -1,20 +1,25 @@
 mod array;
-mod iterator_iterator;
 mod delimited;
 mod digits;
+mod iterator_iterator;
 mod object;
 mod read_adapter;
+#[cfg(feature = "serde")]
+mod serde_adapter;
 mod string;
 mod wrap;
 
+pub use array::*;
 pub use delimited::*;
 pub use digits::Digits;
+pub use iterator_iterator::IteratorIterator;
 pub use object::*;
 pub use read_adapter::ReadAdapter;
+#[cfg(feature = "serde")]
+pub use serde_adapter::SerdeAdapter;
+
 pub use string::*;
 pub use wrap::*;
-pub use array::*;
-pub use iterator_iterator::IteratorIterator;
 
 pub trait Wrapper {
     const START: u8;
@@ -50,9 +55,3 @@ pub struct Colon;
 impl Separator for Colon {
     const SEPARATOR: u8 = b':';
 }
-
-//
-
-//
-
-
